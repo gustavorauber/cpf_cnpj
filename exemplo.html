@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta charset="utf-8" />
+		<title>CPF / CNPJ - Validador com Máscara</title>
+		
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" />
+	</head>
+	<body>
+		<br />
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 col-sm-offset-3">
+					<form class="form">
+						<div class="form-group">
+			                <label for="cpf_cnpj">CPF ou CNPJ</label>
+			                <input type="text" class="form-control cnpj_cpf" placeholder="XXX.XXX.XXX-XX" name="cpf_cnpj" id="cpf_cnpj" tabindex="1" required maxlength="18" />
+			            </div>
+			            <button type="submit" class="btn btn-success btn-block" tabindex="2"><strong>Enviar</strong></button>			            
+					</form>
+				</div>
+			</div>
+		</div>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://raw.githubusercontent.com/igorescobar/jQuery-Mask-Plugin/master/dist/jquery.mask.min.js"></script>
+		<script type="text/javascript">
+		    $( document ).ready(function() {
+		        var completo = false;
+		        var validaCPF = function (cpf) {
+		            if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999")
+		                return false;
+		
+		            add = 0;
+		            for (i=0; i < 9; i ++)
+		                add += parseInt(cpf.charAt(i)) * (10 - i);
+		
+		            rev = 11 - (add % 11);
+		            if (rev == 10 || rev == 11)
+		                rev = 0;
+		            if (rev != parseInt(cpf.charAt(9)))
+		                return false;
+		            add = 0;
+		            for (i = 0; i < 10; i ++)
+		                add += parseInt(cpf.charAt(i)) * (11 - i);
+		
+		            rev = 11 - (add % 11);
+		            if (rev == 10 || rev == 11)
+		                rev = 0;
+		
+		            if (rev != parseInt(cpf.charAt(10)))
+		                return false;
+		
+		            return true;
+		        };
+		
+		        var aplicaMascara = function (cpf, event, element, options) {
+		            cpf = cpf.replace(/\D/g, '');
+		
+		            var masks = ['000.000.000-00', '00.000.000/0000-00'];
+		            mask = (cpf.length > 11 || (cpf.length == 11 && !validaCPF(cpf))) ? masks[1] : masks[0];
+		
+		            $('.cnpj_cpf').mask(mask, this);
+		
+		            if (cpf.length == 11) {
+		                $(element).attr('maxlength', 18);
+		            }  else if (cpf.length < 11) {
+		            	completo = false;
+		            }
+		        };
+		        
+		        $('.cnpj_cpf').mask(
+		        		'000.000.000-00',
+		            {   onKeyPress: aplicaMascara,
+		                clearIfNotMatch: false,
+		                onComplete: function(cpf, event, element, options) {
+		                    cpf = cpf.replace(/\D/g, '');
+		                    if (cpf.length == 11) {
+		                        $(element).attr('maxlength', 18);
+		
+		                        if (completo) {
+		                            if (event.keyCode >= 48 && event.keyCode <= 57 && !validaCPF(cpf)) {
+		                                $('.cnpj_cpf').mask('00.000.000/0000-00', this);
+		                            }
+		                        } else {
+		                        	completo = true;
+		                        }
+		                    } else if (cpf.length < 11) {
+		                        $('.cnpj_cpf').mask('000.000.000-00', this);
+		                        completo = false;
+		                    }
+		                },
+		                onChange: function (cpf, event, element, options) {
+		                	aplicaMascara(cpf);
+		                }
+		            }
+		        );
+		
+		        $('#cpf_cnpj').focus();
+		    });
+		</script>
+	</body>
+</html>
+    
